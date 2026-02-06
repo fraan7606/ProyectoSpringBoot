@@ -21,17 +21,7 @@ public enum EstadoSuscripcion {
     /**
      * Suscripción con pagos pendientes o rechazados
      */
-    MOROSA("Morosa", "Existen pagos pendientes"),
-    
-    /**
-     * Suscripción pausada temporalmente
-     */
-    PAUSADA("Pausada", "Suscripción pausada temporalmente"),
-    
-    /**
-     * Período de prueba gratuita
-     */
-    PRUEBA("Prueba", "Período de prueba gratuita");
+    MOROSA("Morosa", "Existen pagos pendientes");
 
     private final String nombre;
     private final String descripcion;
@@ -53,6 +43,6 @@ public enum EstadoSuscripcion {
      * Método útil para saber si la suscripción permite acceso a la plataforma
      */
     public boolean permiteAcceso() {
-        return this == ACTIVA || this == PRUEBA;
+        return this == ACTIVA;
     }
 }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Nuevo Plan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-cloud"></i> SaaS System</a>
+            <div class="ms-auto">
+                <a class="btn btn-outline-light" href="/planes">
+                    <i class="fas fa-arrow-left"></i> Volver a Planes
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-plus-circle"></i> Crear Nuevo Plan</h3>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/planes}" th:object="${plan}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Plan *</label>
+                                <select class="form-select" th:field="*{tipoPlan}" required>
+                                    <option value="">Seleccione un tipo...</option>
+                                    <option th:each="tipo : ${tiposPlan}" 
+                                            th:value="${tipo}" 
+                                            th:text="${tipo.name()}">Tipo</option>
+                                </select>
+                                <div class="text-danger" th:if="${#fields.hasErrors('tipoPlan')}" 
+                                     th:errors="*{tipoPlan}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Plan *</label>
+                                <input type="text" class="form-control" th:field="*{nombre}" 
+                                       placeholder="Ej: Plan Basic" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" 
+                                     th:errors="*{nombre}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Precio Mensual ($) *</label>
+                                <input type="number" step="0.01" class="form-control" 
+                                       th:field="*{precioMensual}" placeholder="9.99" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('precioMensual')}" 
+                                     th:errors="*{precioMensual}"></div>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" 
+                                       th:field="*{activo}" id="activo" checked>
+                                <label class="form-check-label" for="activo">Plan Activo</label>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Crear Plan
+                                </button>
+                                <a href="/planes" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

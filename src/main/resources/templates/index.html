@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS System - Inicio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: #2c3e50;
+            color: white;
+            padding: 100px 0;
+        }
+        .plan-card {
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .plan-price {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-cloud"></i> SaaS System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/planes">Planes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/usuarios">Usuarios</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-2" href="/usuarios/registro">Registrarse</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">Bienvenido a SaaS System</h1>
+            <p class="lead mb-5">Gestión de suscripciones con facturación automática y cambio de planes</p>
+            <a href="/usuarios/registro" class="btn btn-light btn-lg me-3"><i class="fas fa-user-plus"></i> Comenzar Ahora</a>
+            <a href="#planes" class="btn btn-outline-light btn-lg"><i class="fas fa-info-circle"></i> Ver Planes</a>
+        </div>
+    </section>
+
+    <!-- Características -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Características Principales</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card text-center p-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-file-invoice-dollar fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Facturación Automática</h5>
+                            <p class="card-text">Facturas generadas automáticamente cada 30 días</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center p-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-exchange-alt fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Cambio de Plan Flexible</h5>
+                            <p class="card-text">Cambia de plan en cualquier momento con prorrateo automático</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center p-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-history fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">Auditoría Completa</h5>
+                            <p class="card-text">Historial de todos los cambios con Hibernate Envers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Planes Disponibles -->
+    <section id="planes" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Nuestros Planes</h2>
+            <div class="row g-4">
+                <div class="col-md-4" th:each="plan : ${planes}">
+                    <div class="card plan-card border-0 shadow">
+                        <div class="card-header text-center py-4" 
+                             th:classappend="${plan.tipoPlan.name() == 'BASIC'} ? 'bg-info text-white' : 
+                                            (${plan.tipoPlan.name() == 'PREMIUM'} ? 'bg-primary text-white' : 'bg-dark text-white')">
+                            <h3 th:text="${plan.nombre}">Plan</h3>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <div class="plan-price text-primary mb-3">
+                                $<span th:text="${#numbers.formatDecimal(plan.precioMensual, 1, 2)}">0.00</span>
+                            </div>
+                            <p class="text-muted mb-4">por mes</p>
+                            
+                            <div class="text-start mb-4">
+                                <div th:if="${plan.tipoPlan.name() == 'BASIC'}">
+                                    <p><i class="fas fa-check text-success"></i> Usuarios limitados</p>
+                                    <p><i class="fas fa-check text-success"></i> 10GB Almacenamiento</p>
+                                    <p><i class="fas fa-check text-success"></i> Soporte por email</p>
+                                </div>
+                                <div th:if="${plan.tipoPlan.name() == 'PREMIUM'}">
+                                    <p><i class="fas fa-check text-success"></i> Usuarios ilimitados</p>
+                                    <p><i class="fas fa-check text-success"></i> 100GB Almacenamiento</p>
+                                    <p><i class="fas fa-check text-success"></i> Soporte prioritario</p>
+                                    <p><i class="fas fa-check text-success"></i> API Access</p>
+                                </div>
+                                <div th:if="${plan.tipoPlan.name() == 'ENTERPRISE'}">
+                                    <p><i class="fas fa-check text-success"></i> Todo de Premium +</p>
+                                    <p><i class="fas fa-check text-success"></i> Almacenamiento ilimitado</p>
+                                    <p><i class="fas fa-check text-success"></i> Soporte 24/7</p>
+                                    <p><i class="fas fa-check text-success"></i> Personalización</p>
+                                    <p><i class="fas fa-check text-success"></i> Gestor dedicado</p>
+                                </div>
+                            </div>
+                            
+                            <a href="/usuarios/registro" class="btn btn-outline-primary w-100">Seleccionar Plan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 SaaS System</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

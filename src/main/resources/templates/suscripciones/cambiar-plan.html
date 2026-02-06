@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambiar Plan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .plan-selector {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .plan-selector:hover {
+            transform: scale(1.05);
+        }
+        .plan-selector input[type="radio"]:checked + label {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-cloud"></i> SaaS System</a>
+            <div class="ms-auto">
+                <a class="btn btn-outline-light" th:href="@{'/usuarios/' + ${suscripcion.usuario.id}}">
+                    <i class="fas fa-arrow-left"></i> Volver a Mi Perfil
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-exchange-alt"></i> Cambiar Plan de Suscripción</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Plan Actual -->
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Plan Actual:</h5>
+                            <p class="mb-0">
+                                <strong th:text="${planActual.nombre}">Plan</strong> - 
+                                $<span th:text="${#numbers.formatDecimal(planActual.precioMensual, 1, 2)}">0.00</span>/mes
+                            </p>
+                        </div>
+
+                        <!-- Información sobre prorrateo -->
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-calculator"></i> Importante sobre el Prorrateo:</h6>
+                            <ul class="mb-0">
+                                <li>Si cambias a un plan <strong>más caro</strong>, se calculará la diferencia proporcional hasta tu próxima fecha de renovación</li>
+                                <li>Si cambias a un plan <strong>más barato o igual</strong>, el cambio se aplicará sin cargos adicionales</li>
+                                <li>La próxima factura se generará en tu fecha de renovación: 
+                                    <strong th:text="${#temporals.format(suscripcion.fechaRenovacion, 'dd/MM/yyyy')}">fecha</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Selección de Nuevo Plan -->
+                        <form th:action="@{'/suscripciones/' + ${suscripcion.id} + '/cambiar-plan'}" method="post">
+                            <h5 class="mb-3">Selecciona tu nuevo plan:</h5>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-4" th:each="plan : ${planesDisponibles}">
+                                    <div class="plan-selector">
+                                        <input type="radio" class="btn-check" name="nuevoPlanId" 
+                                               th:id="'plan' + ${plan.id}" th:value="${plan.id}" required
+                                               th:checked="${plan.id == planActual.id}">
+                                        <label class="btn btn-outline-primary w-100 h-100 p-4" 
+                                               th:for="'plan' + ${plan.id}"
+                                               th:classappend="${plan.id == planActual.id} ? 'disabled' : ''">
+                                            <div class="text-center">
+                                                <h5 th:text="${plan.nombre}">Plan</h5>
+                                                <h2 class="my-3">
+                                                    $<span th:text="${#numbers.formatDecimal(plan.precioMensual, 1, 2)}">0.00</span>
+                                                </h2>
+                                                <small>por mes</small>
+                                                
+                                                <div class="mt-3" th:if="${plan.id == planActual.id}">
+                                                    <span class="badge bg-secondary">Plan Actual</span>
+                                                </div>
+                                                
+                                                <div class="mt-3" th:if="${plan.precioMensual.compareTo(planActual.precioMensual) > 0}">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-arrow-up"></i> Upgrade +$<span th:text="${#numbers.formatDecimal(plan.precioMensual.subtract(planActual.precioMensual), 1, 2)}">0.00</span>
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="mt-3" th:if="${plan.precioMensual.compareTo(planActual.precioMensual) < 0}">
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-arrow-down"></i> Ahorro $<span th:text="${#numbers.formatDecimal(planActual.precioMensual.subtract(plan.precioMensual), 1, 2)}">0.00</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Actor (Para auditoría - opcional)</label>
+                                <input type="email" class="form-control" name="actor" 
+                                       th:value="${suscripcion.usuario.email}" 
+                                       placeholder="email@ejemplo.com">
+                                <small class="form-text text-muted">
+                                    Este email se registrará en el historial de auditoría del cambio
+                                </small>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{'/usuarios/' + ${suscripcion.usuario.id}}" 
+                                   class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check"></i> Confirmar Cambio de Plan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

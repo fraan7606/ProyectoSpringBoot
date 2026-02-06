@@ -89,6 +89,8 @@ public class Usuario {
      * - fetch: LAZY = El perfil se carga solo cuando se accede (mejor performance)
      */
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Perfil perfil;
 
     /**
@@ -96,6 +98,8 @@ public class Usuario {
      * Similar a la relación con Perfil
      */
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Suscripcion suscripcion;
 
     /**

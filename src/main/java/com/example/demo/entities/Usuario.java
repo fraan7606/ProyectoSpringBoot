@@ -71,11 +71,8 @@ public class Usuario {
     @Column(name = "fecha_registro", nullable = false, updatable = false)
     private LocalDateTime fechaRegistro;
 
-    /**
-     * Indica si el usuario está activo en la plataforma
-     */
     @Column(nullable = false)
-    @Builder.Default  // Valor por defecto cuando usamos el Builder
+    @Builder.Default
     private Boolean activo = true;
 
     /**

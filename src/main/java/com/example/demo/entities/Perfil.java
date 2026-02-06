@@ -73,13 +73,10 @@ public class Perfil {
     private String codigoPostal;
 
     /**
-     * Método helper para establecer la relación bidireccional con Usuario
+     * Método para establecer la relación bidireccional con Usuario
      */
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
-        if (usuario != null && usuario.getPerfil() != this) {
-            usuario.setPerfil(this);
-        }
     }
 
     /**

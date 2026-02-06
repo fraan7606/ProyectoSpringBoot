@@ -9,7 +9,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "suscripciones")
+@Table(name = "suscripciones", indexes = {
+    @Index(name = "idx_suscripcion_estado", columnList = "estado"),
+    @Index(name = "idx_suscripcion_renovacion", columnList = "fecha_renovacion")
+})
 @Audited
 @Data
 @NoArgsConstructor
@@ -49,10 +52,10 @@ public class Suscripcion {
     @Column(name = "ultimo_cambio_plan")
     private LocalDateTime ultimoCambioPlan;
 
+    /**
+     * Método para establecer la relación bidireccional con Usuario
+     */
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
-        if (usuario != null && usuario.getSuscripcion() != this) {
-            usuario.setSuscripcion(this);
-        }
     }
 }

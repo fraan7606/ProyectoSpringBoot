@@ -7,10 +7,8 @@ import com.example.demo.entities.Usuario;
 import com.example.demo.enums.EstadoSuscripcion;
 import com.example.demo.repositories.PlanRepository;
 import com.example.demo.repositories.UsuarioRepository;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -39,21 +37,35 @@ public class UsuarioController {
 
     @PostMapping("/registro")
     public String registrarUsuario(
-            @Valid @ModelAttribute("usuario") Usuario usuario,
-            BindingResult usuarioResult,
-            @Valid @ModelAttribute("perfil") Perfil perfil,
-            BindingResult perfilResult,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("perfil.nombre") String nombre,
+            @RequestParam("perfil.apellido") String apellido,
+            @RequestParam(value = "perfil.telefono", required = false) String telefono,
+            @RequestParam(value = "perfil.empresa", required = false) String empresa,
+            @RequestParam(value = "perfil.direccion", required = false) String direccion,
+            @RequestParam(value = "perfil.ciudad", required = false) String ciudad,
+            @RequestParam(value = "perfil.pais", required = false) String pais,
+            @RequestParam(value = "perfil.codigoPostal", required = false) String codigoPostal,
             @RequestParam("planId") Long planId,
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        if (usuarioResult.hasErrors() || perfilResult.hasErrors()) {
+        // Validaciones básicas
+        if (email == null || email.isBlank() || password == null || password.length() < 8) {
+            model.addAttribute("error", "Email y contraseña (mínimo 8 caracteres) son obligatorios");
+            model.addAttribute("planes", planRepository.findAll());
+            return "usuarios/registro";
+        }
+
+        if (nombre == null || nombre.isBlank() || apellido == null || apellido.isBlank()) {
+            model.addAttribute("error", "Nombre y apellido son obligatorios");
             model.addAttribute("planes", planRepository.findAll());
             return "usuarios/registro";
         }
 
         // Verificar si el email ya existe
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+        if (usuarioRepository.findByEmail(email).isPresent()) {
             model.addAttribute("error", "El email ya está registrado");
             model.addAttribute("planes", planRepository.findAll());
             return "usuarios/registro";
@@ -69,8 +81,26 @@ public class UsuarioController {
 
         Plan plan = planOpt.get();
 
-        // Crear el perfil y asociarlo al usuario
-        perfil.setUsuario(usuario);
+        // Crear usuario
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .password(password)
+                .activo(true)
+                .build();
+
+        // Crear perfil
+        Perfil perfil = Perfil.builder()
+                .nombre(nombre)
+                .apellido(apellido)
+                .telefono(telefono)
+                .empresa(empresa)
+                .direccion(direccion)
+                .ciudad(ciudad)
+                .pais(pais)
+                .codigoPostal(codigoPostal)
+                .usuario(usuario)
+                .build();
+
         usuario.setPerfil(perfil);
 
         // Crear la suscripción

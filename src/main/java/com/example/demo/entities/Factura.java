@@ -10,7 +10,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "facturas")
+@Table(name = "facturas", indexes = {
+    @Index(name = "idx_factura_estado", columnList = "estado"),
+    @Index(name = "idx_factura_emision", columnList = "fecha_emision")
+})
 @Audited
 @Data
 @NoArgsConstructor

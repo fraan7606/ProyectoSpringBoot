@@ -11,7 +11,9 @@ import org.hibernate.envers.Audited;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "planes")
+@Table(name = "planes", indexes = {
+    @Index(name = "idx_plan_activo", columnList = "activo")
+})
 @Audited
 @Data
 @NoArgsConstructor

@@ -48,6 +48,12 @@ public class Factura {
     @Column(name = "fecha_emision", nullable = false)
     private LocalDate fechaEmision;
 
+    @Column(name = "monto_subtotal", nullable = false, precision = 12, scale = 2)
+    private BigDecimal montoSubtotal;
+
+    @Column(name = "monto_impuestos", nullable = false, precision = 12, scale = 2)
+    private BigDecimal montoImpuestos;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal monto;
 }

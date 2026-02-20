@@ -1,5 +1,9 @@
 package com.example.demo.controllers;
 
+import java.math.BigDecimal;
+import java.util.stream.Collectors;
+import java.util.List;
+
 import com.example.demo.entities.Factura;
 import com.example.demo.entities.Plan;
 import com.example.demo.entities.Suscripcion;
@@ -36,17 +40,40 @@ public class SuscripcionController {
     }
 
     @GetMapping("/{id}")
-    public String verSuscripcion(@PathVariable Long id, Model model) {
+    public String verSuscripcion(
+            @PathVariable Long id,
+            @RequestParam(required = false) String inicio,
+            @RequestParam(required = false) String fin,
+            @RequestParam(required = false) BigDecimal montoMin,
+            Model model) {
+
         Optional<Suscripcion> suscripcionOpt = suscripcionRepository.findById(id);
         if (suscripcionOpt.isEmpty()) {
             return "redirect:/";
         }
 
         Suscripcion suscripcion = suscripcionOpt.get();
+        List<Factura> facturas = facturaRepository.findBySuscripcionOrderByFechaEmisionDesc(suscripcion);
+
+        // Aplicar filtros manuales (para cumplir requisito sin complicar el repo)
+        if (inicio != null && !inicio.isEmpty()) {
+            LocalDate fInicio = LocalDate.parse(inicio);
+            facturas = facturas.stream().filter(f -> !f.getFechaEmision().isBefore(fInicio))
+                    .collect(Collectors.toList());
+        }
+        if (fin != null && !fin.isEmpty()) {
+            LocalDate fFin = LocalDate.parse(fin);
+            facturas = facturas.stream().filter(f -> !f.getFechaEmision().isAfter(fFin)).collect(Collectors.toList());
+        }
+        if (montoMin != null) {
+            facturas = facturas.stream().filter(f -> f.getMonto().compareTo(montoMin) >= 0)
+                    .collect(Collectors.toList());
+        }
+
         model.addAttribute("suscripcion", suscripcion);
         model.addAttribute("usuario", suscripcion.getUsuario());
-        model.addAttribute("facturas", facturaRepository.findBySuscripcionOrderByFechaEmisionDesc(suscripcion));
-        
+        model.addAttribute("facturas", facturas);
+
         return "suscripciones/detalle";
     }
 
@@ -61,7 +88,7 @@ public class SuscripcionController {
         model.addAttribute("suscripcion", suscripcion);
         model.addAttribute("planActual", suscripcion.getPlan());
         model.addAttribute("planesDisponibles", planRepository.findAll());
-        
+
         return "suscripciones/cambiar-plan";
     }
 
@@ -92,30 +119,30 @@ public class SuscripcionController {
 
         // Realizar el cambio de plan con prorrateo
         Optional<Factura> facturaProrrateo = suscripcionService.cambiarPlanConProrrateo(
-                suscripcion, 
-                nuevoPlan, 
-                LocalDate.now(), 
-                actor
-        );
+                suscripcion,
+                nuevoPlan,
+                LocalDate.now(),
+                actor);
 
         // Guardar los cambios
         suscripcionRepository.save(suscripcion);
-        
+
         // Guardar la factura si se generó
         if (facturaProrrateo.isPresent()) {
             Factura factura = facturaProrrateo.get();
             facturaRepository.save(factura);
-            
-            redirectAttributes.addFlashAttribute("success", 
-                String.format("Plan cambiado de %s a %s. Se generó una factura de prorrateo por $%.2f", 
-                    planAnterior.getNombre(), 
-                    nuevoPlan.getNombre(), 
-                    factura.getMonto()));
+
+            redirectAttributes.addFlashAttribute("success",
+                    String.format("Plan cambiado de %s a %s. Se generó una factura de prorrateo por $%.2f",
+                            planAnterior.getNombre(),
+                            nuevoPlan.getNombre(),
+                            factura.getMonto()));
         } else {
-            redirectAttributes.addFlashAttribute("success", 
-                String.format("Plan cambiado de %s a %s. No se generó cargo adicional (el nuevo plan es más barato o igual).", 
-                    planAnterior.getNombre(), 
-                    nuevoPlan.getNombre()));
+            redirectAttributes.addFlashAttribute("success",
+                    String.format(
+                            "Plan cambiado de %s a %s. No se generó cargo adicional (el nuevo plan es más barato o igual).",
+                            planAnterior.getNombre(),
+                            nuevoPlan.getNombre()));
         }
 
         return "redirect:/usuarios/" + suscripcion.getUsuario().getId();

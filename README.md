@@ -43,9 +43,9 @@ erDiagram
     USUARIO ||--o| METODO_PAGO : configura
     SUSCRIPCION ||--o{ FACTURA : genera
     PLAN ||--o{ SUSCRIPCION : asignado_a
-    METODO_PAGO <|-- PagoTarjeta : hereda
-    METODO_PAGO <|-- PagoPayPal : hereda
-    METODO_PAGO <|-- PagoTransferencia : hereda
+    METODO_PAGO ||--o| PagoTarjeta : "especialización"
+    METODO_PAGO ||--o| PagoPayPal : "especialización"
+    METODO_PAGO ||--o| PagoTransferencia : "especialización"
 
     USUARIO {
         Long id
